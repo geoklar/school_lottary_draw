@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Κλήρωση λαχνών ΣΤ' τάξης</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px 0;
+        }
+        header h1 {
+            margin: 0;
+        }
+        #controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2874a6;
+        }
+        #spinner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        #spinner .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 6px solid #f3f3f3; /* Light grey */
+            border-top: 6px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #results {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px;
+        }
+        .result-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+            text-align: left;
+        }
+        .result-card h3 {
+            color: #3498db;
+            margin: 0 0 10px;
+        }
+        .result-card p {
+            margin: 5px 0;
+        }
+        .result-card p span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🎉 Καλωσήρθατε στην κλήρωση των λαχνών</h1>
+		<h2>ΣΤ' τάξης του 19ου Δημοτικού σχολείου Θεσσαλονίκης 🎉</h2>
+    </header>
+    <div id="controls">
+        <button id="startRaffleBtn">Έναρξη Κλήρωσης</button>
+        <button id="downloadPdfBtn">Download PDF</button>
+    </div>
+    <div id="spinner">
+        <div class="loader"></div>
+    </div>
+    <div id="results"></div>
+
+    <script>
+        const startRaffleBtn = document.getElementById('startRaffleBtn');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        const spinner = document.getElementById('spinner');
+        const resultsDiv = document.getElementById('results');
+
+        startRaffleBtn.addEventListener('click', async () => {
+            resultsDiv.innerHTML = '';
+            spinner.style.display = 'flex'; // Show full-screen spinner
+
+            try {
+                const response = await fetch('/api/start_raffle');
+                const data = await response.json();
+
+                // Simulate delay for each result
+                for (let i = 0; i < data.length; i++) {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'result-card';
+
+                    const giftName = document.createElement('h3');
+                    giftName.textContent = `🎁 ${data[i].gift}`;
+
+                    const ticketNumber = document.createElement('p');
+                    ticketNumber.innerHTML = `🎟️ Αριθμός Λαχνού: <span>${data[i].ticket}</span>`;
+
+                    resultCard.appendChild(giftName);
+                    resultCard.appendChild(ticketNumber);
+
+                    await new Promise(resolve => setTimeout(resolve, 100)); // 0.1 second delay
+                    resultsDiv.appendChild(resultCard);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = '<p>Error fetching raffle results. Please try again.</p>';
+            } finally {
+                spinner.style.display = 'none'; // Hide full-screen spinner
+            }
+        });
+
+        downloadPdfBtn.addEventListener('click', () => {
+            window.location.href = '/download';
+        });
+    </script>
+</body>
+</html>
