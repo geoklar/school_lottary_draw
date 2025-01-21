@@ -15,12 +15,26 @@ gifts = []
 with open("gifts.txt", "r", encoding="utf-8") as file:
     gifts = [line.strip() for line in file]
 
+# Read excluded ticket numbers from file
+excluded_tickets = set()
+try:
+    with open("excluded.txt", "r", encoding="utf-8") as file:
+        excluded_tickets = {int(line.strip()) for line in file if line.strip().isdigit()}
+except FileNotFoundError:
+    print("No excluded.txt file found. Continuing without exclusions.")
+
 # Add a date for the raffle
 current_date = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 current_pdf_date = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 
-# Generate unique numbers for the gifts
-unique_numbers = random.sample(range(1, 3001), len(gifts))
+# Generate unique numbers for the gifts, excluding specified tickets
+available_numbers = [n for n in range(1, 3001) if n not in excluded_tickets]
+
+# Ensure we have enough numbers to match the gifts
+if len(available_numbers) < len(gifts):
+    raise ValueError("Not enough available numbers after exclusions to match all gifts.")
+
+unique_numbers = random.sample(available_numbers, len(gifts))
 gift_allocation = dict(zip(unique_numbers, gifts))
 
 # Register a font for PDF generation
