@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="el">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +17,7 @@
             color: white;
             padding: 20px 0;
         }
-        header h1 {
+        header h1, header h2 {
             margin: 0;
         }
         #controls {
@@ -45,14 +45,12 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
-        #spinner .loader {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 6px solid #f3f3f3; /* Light grey */
-            border-top: 6px solid #3498db; /* Blue */
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
             border-radius: 50%;
             width: 60px;
             height: 60px;
@@ -64,10 +62,11 @@
         }
         #results {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
+            flex-direction: column;
+            align-items: center;
             margin: 20px;
+            max-height: 400px;
+            overflow-y: auto;
         }
         .result-card {
             background-color: white;
@@ -77,13 +76,11 @@
             width: 300px;
             padding: 20px;
             text-align: left;
+            margin-bottom: 10px;
         }
         .result-card h3 {
             color: #3498db;
             margin: 0 0 10px;
-        }
-        .result-card p {
-            margin: 5px 0;
         }
         .result-card p span {
             font-weight: bold;
@@ -93,7 +90,7 @@
 <body>
     <header>
         <h1>🎉 Καλωσήρθατε στην κλήρωση των λαχνών</h1>
-		<h2>ΣΤ' τάξης του 19ου Δημοτικού σχολείου Θεσσαλονίκης 🎉</h2>
+        <h2>ΣΤ' τάξης του 19ου Δημοτικού σχολείου Θεσσαλονίκης 🎉</h2>
     </header>
     <div id="controls">
         <button id="startRaffleBtn">Έναρξη Κλήρωσης</button>
@@ -112,13 +109,12 @@
 
         startRaffleBtn.addEventListener('click', async () => {
             resultsDiv.innerHTML = '';
-            spinner.style.display = 'flex'; // Show full-screen spinner
+            spinner.style.display = 'flex'; // Εμφάνιση spinner πλήρους οθόνης
 
             try {
                 const response = await fetch('/api/start_raffle');
                 const data = await response.json();
 
-                // Simulate delay for each result
                 for (let i = 0; i < data.length; i++) {
                     const resultCard = document.createElement('div');
                     resultCard.className = 'result-card';
@@ -132,13 +128,16 @@
                     resultCard.appendChild(giftName);
                     resultCard.appendChild(ticketNumber);
 
-                    await new Promise(resolve => setTimeout(resolve, 100)); // 0.1 second delay
+                    await new Promise(resolve => setTimeout(resolve, 500)); // delay 0.5s
                     resultsDiv.appendChild(resultCard);
+
+                    // Αυτόματο scroll στο κάτω μέρος
+                    resultsDiv.scrollTop = resultsDiv.scrollHeight;
                 }
             } catch (error) {
-                resultsDiv.innerHTML = '<p>Error fetching raffle results. Please try again.</p>';
+                resultsDiv.innerHTML = '<p>Σφάλμα κατά την ανάκτηση των αποτελεσμάτων. Προσπαθήστε ξανά.</p>';
             } finally {
-                spinner.style.display = 'none'; // Hide full-screen spinner
+                spinner.style.display = 'none'; // Απόκρυψη spinner μετά το τέλος της κλήρωσης
             }
         });
 
