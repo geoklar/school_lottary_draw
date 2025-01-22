@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="el">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +17,7 @@
             color: white;
             padding: 20px 0;
         }
-        header h1, header h2 {
+        header h1 {
             margin: 0;
         }
         #controls {
@@ -45,12 +45,14 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
-            justify-content: center;
-            align-items: center;
         }
-        .loader {
-            border: 6px solid #f3f3f3;
-            border-top: 6px solid #3498db;
+        #spinner .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 6px solid #f3f3f3; /* Light grey */
+            border-top: 6px solid #3498db; /* Blue */
             border-radius: 50%;
             width: 60px;
             height: 60px;
@@ -62,11 +64,10 @@
         }
         #results {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
             margin: 20px;
-            max-height: 400px;
-            overflow-y: auto;
         }
         .result-card {
             background-color: white;
@@ -76,14 +77,19 @@
             width: 300px;
             padding: 20px;
             text-align: left;
-            margin-bottom: 10px;
         }
         .result-card h3 {
             color: #3498db;
             margin: 0 0 10px;
         }
+        .result-card p {
+            margin: 5px 0;
+        }
         .result-card p span {
             font-weight: bold;
+        }
+        #downloadPdfBtn {
+            display: none; /* Αρχικά κρυφό */
         }
     </style>
 </head>
@@ -109,7 +115,8 @@
 
         startRaffleBtn.addEventListener('click', async () => {
             resultsDiv.innerHTML = '';
-            spinner.style.display = 'flex'; // Εμφάνιση spinner πλήρους οθόνης
+            downloadPdfBtn.style.display = 'none'; // Κρύβουμε το κουμπί πριν ξεκινήσει η κλήρωση
+            spinner.style.display = 'flex'; // Εμφάνιση spinner
 
             try {
                 const response = await fetch('/api/start_raffle');
@@ -128,16 +135,17 @@
                     resultCard.appendChild(giftName);
                     resultCard.appendChild(ticketNumber);
 
-                    await new Promise(resolve => setTimeout(resolve, 500)); // delay 0.5s
+                    await new Promise(resolve => setTimeout(resolve, 500)); // 0.5 δευτερόλεπτα καθυστέρηση
                     resultsDiv.appendChild(resultCard);
-
-                    // Αυτόματο scroll στο κάτω μέρος
-                    resultsDiv.scrollTop = resultsDiv.scrollHeight;
                 }
+
+                // Εμφάνιση του κουμπιού "Download PDF" αφού ολοκληρωθεί η κλήρωση
+                downloadPdfBtn.style.display = 'inline-block';
+
             } catch (error) {
-                resultsDiv.innerHTML = '<p>Σφάλμα κατά την ανάκτηση των αποτελεσμάτων. Προσπαθήστε ξανά.</p>';
+                resultsDiv.innerHTML = '<p>Σφάλμα κατά τη λήψη των αποτελεσμάτων. Δοκιμάστε ξανά.</p>';
             } finally {
-                spinner.style.display = 'none'; // Απόκρυψη spinner μετά το τέλος της κλήρωσης
+                spinner.style.display = 'none'; // Απόκρυψη spinner
             }
         });
 
