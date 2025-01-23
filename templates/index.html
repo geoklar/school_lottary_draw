@@ -115,7 +115,8 @@
 
         startRaffleBtn.addEventListener('click', async () => {
             resultsDiv.innerHTML = '';
-            downloadPdfBtn.style.display = 'none'; // Κρύβουμε το κουμπί πριν ξεκινήσει η κλήρωση
+            downloadPdfBtn.style.display = 'none'; // Κρύβουμε το κουμπί download
+            startRaffleBtn.style.display = 'none'; // Κρύβουμε το κουμπί έναρξης
             spinner.style.display = 'flex'; // Εμφάνιση spinner
 
             try {
@@ -135,7 +136,7 @@
                     resultCard.appendChild(giftName);
                     resultCard.appendChild(ticketNumber);
 
-                    await new Promise(resolve => setTimeout(resolve, 500)); // 0.5 δευτερόλεπτα καθυστέρηση
+                    await new Promise(resolve => setTimeout(resolve, 200)); // 0.2 δευτερόλεπτα καθυστέρηση
                     resultsDiv.appendChild(resultCard);
                 }
 
@@ -144,6 +145,7 @@
 
             } catch (error) {
                 resultsDiv.innerHTML = '<p>Σφάλμα κατά τη λήψη των αποτελεσμάτων. Δοκιμάστε ξανά.</p>';
+                startRaffleBtn.style.display = 'inline-block'; // Αν υπάρξει σφάλμα, ξαναεμφανίζουμε το κουμπί έναρξης
             } finally {
                 spinner.style.display = 'none'; // Απόκρυψη spinner
             }
